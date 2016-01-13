@@ -34,10 +34,18 @@
           <version>2.4</version>
       </dependency>
 
-
   </dependencies>
   <build>
     <finalName>RESTfulExample</finalName>
+      <plugins>
+          <plugin>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>1.6</source>
+                  <target>1.6</target>
+              </configuration>
+          </plugin>
+      </plugins>
 
   </build>
 </project>

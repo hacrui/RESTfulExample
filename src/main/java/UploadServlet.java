@@ -28,8 +28,9 @@ public class UploadServlet extends HttpServlet {
             throws ServletException, IOException {
         // sum of path number
         int pathCount = 0;
-
-        // Check that we have a file upload request
+        // file exits
+        boolean fileExits = false;
+        //check the enctype
         isMultipart = ServletFileUpload.isMultipartContent(request);
         response.setContentType("text/html");
         PrintWriter out = response.getWriter( );
@@ -66,7 +67,7 @@ public class UploadServlet extends HttpServlet {
             out.println("</head>");
             out.println("<body>");
             List<String> filePath = new ArrayList<String>();
-            while ( i.hasNext () )
+            while (i.hasNext () )
             {
                 FileItem fi = (FileItem)i.next();
                 //fi is a warehouse name
@@ -79,14 +80,19 @@ public class UploadServlet extends HttpServlet {
                 //fi is a module name
                 else if(fi.isFormField () && fi.getFieldName().equals("module"))
                 {
+                    if(pathCount == 0)
+                    {
+                        throw new RuntimeException("you need choose at least one warehouse!");
+                    }
                     for(int j = 0; j < pathCount; j++)
                     {
                         filePath.set(j,filePath.get(j)+fi.getString()+"\\");
                     }
                 }
                 // fi is a file
-                else
+                else if(!fi.isFormField ())
                 {
+                    fileExits = true;
                     // Get the uploaded file parameters
                     String fieldName = fi.getFieldName();
                     String fileName = fi.getName();
@@ -94,33 +100,34 @@ public class UploadServlet extends HttpServlet {
                     boolean isInMemory = fi.isInMemory();
                     long sizeInBytes = fi.getSize();
                     // Write the file
-                    if( fileName.lastIndexOf("\\") >= 0 )
+//                    if( fileName.lastIndexOf("\\") >= 0 )
+//                    {
+                    for(int k = 0; k < pathCount; k++)
                     {
-                        for(int k = 0; k < pathCount; k++)
-                        {
-                            file = new File( filePath.get(k) +
-                                fileName.substring( fileName.lastIndexOf("\\"))) ;
-                            fi.write( file ) ;
-                        }
-                    }
-                    else
-                    {
-                        for(int k = 0; k < pathCount; k++)
-                        {
-                            file = new File( filePath.get(k) +
-                                fileName.substring(fileName.lastIndexOf("\\")+1)) ;
-                            fi.write( file ) ;
-                        }
+                        file = new File( filePath.get(k) +
+                                fileName.substring( fileName.lastIndexOf("\\")) + 1) ;
+                        fi.write( file ) ;
                     }
 
                     out.println("Uploaded Filename:" + fileName + "<br>");
+                }
+                if(!fileExits)
+                {
+                    throw new RuntimeException("you need to choose at least one file");
                 }
 
             }
             out.println("</body>");
             out.println("</html>");
         }catch(Exception ex) {
-            System.out.println(ex);
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet upload</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<p>"+ex.getMessage()+"</p>");
+            out.println("</body>");
+            out.println("</html>");
         }
     }
     public void doGet(HttpServletRequest request,
@@ -128,7 +135,7 @@ public class UploadServlet extends HttpServlet {
             throws ServletException, IOException {
 
         throw new ServletException("GET method used with " +
-                getClass( ).getName( )+": POST method required.");
+                getClass( ).getName( )+":POST method required.");
 
     }
 
