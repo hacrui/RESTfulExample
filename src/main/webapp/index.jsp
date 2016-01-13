@@ -4,7 +4,8 @@
 </head>
 <body>
 
-<form action="UploadServlet" method="POST" enctype="multipart/form-data">
+<form action="UploadServlet" method="POST" enctype="multipart/form-data" >
+    <%--enctype="multipart/form-data"--%>
 
     <h3>WareHouse</h3>
     <input type="checkbox" name="gz" /> gz
