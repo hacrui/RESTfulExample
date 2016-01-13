@@ -105,18 +105,20 @@ public class UploadServlet extends HttpServlet {
                     for(int k = 0; k < pathCount; k++)
                     {
                         file = new File( filePath.get(k) +
-                                fileName.substring( fileName.lastIndexOf("\\")) + 1) ;
+                                fileName.substring( fileName.lastIndexOf("\\") + 1)) ;
                         fi.write( file ) ;
                     }
 
                     out.println("Uploaded Filename:" + fileName + "<br>");
                 }
-                if(!fileExits)
-                {
-                    throw new RuntimeException("you need to choose at least one file");
-                }
 
             }
+
+            if(!fileExits)
+            {
+                throw new RuntimeException("you need to choose at least one file");
+            }
+
             out.println("</body>");
             out.println("</html>");
         }catch(Exception ex) {
