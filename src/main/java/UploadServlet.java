@@ -1,6 +1,7 @@
 // Import required java libraries
 import java.io.*;
-import java.util.*; 
+import java.util.*;
+import org.apache.log4j.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,16 +11,17 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.output.*;
 
 public class UploadServlet extends HttpServlet {
+    private final Logger logger = Logger.getLogger(getClass());
     private boolean isMultipart;
     private String filePathTemp;
-    private int maxFileSize = 1024 * 1024;
+    private int maxFileSize = 1024 * 1024 * 1024;
     private int maxMemSize = 4 * 1024;
     private File file ;
     public void init( ){
         // Get the file location where it would be stored.
+        logger.info("created for test by marui");
         filePathTemp =
                 getServletContext().getInitParameter("file-upload");
     }
@@ -59,6 +61,7 @@ public class UploadServlet extends HttpServlet {
         try{
             // Parse the request to get file items.
             List fileItems = upload.parseRequest(request);
+            logger.info(fileItems);
             // Process the uploaded file items
             Iterator i = fileItems.iterator();
             out.println("<html>");
@@ -100,8 +103,6 @@ public class UploadServlet extends HttpServlet {
                     boolean isInMemory = fi.isInMemory();
                     long sizeInBytes = fi.getSize();
                     // Write the file
-//                    if( fileName.lastIndexOf("\\") >= 0 )
-//                    {
                     for(int k = 0; k < pathCount; k++)
                     {
                         file = new File( filePath.get(k) +
@@ -111,7 +112,6 @@ public class UploadServlet extends HttpServlet {
 
                     out.println("Uploaded Filename:" + fileName + "<br>");
                 }
-
             }
 
             if(!fileExits)
