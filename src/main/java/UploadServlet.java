@@ -16,8 +16,6 @@ public class UploadServlet extends HttpServlet {
     private final Logger logger = Logger.getLogger(getClass());
     private boolean isMultipart;
     private String filePathTemp;
-    private int maxFileSize = 1024 * 1024 * 1024;
-    private int maxMemSize = 4 * 1024;
     private File file ;
     public void init( ){
         // Get the file location where it would be stored.
@@ -49,15 +47,7 @@ public class UploadServlet extends HttpServlet {
         }
 
         DiskFileItemFactory factory = new DiskFileItemFactory();
-        // maximum size that will be stored in memory
-        factory.setSizeThreshold(maxMemSize);
-        // Location to save data that is larger than maxMemSize.
-        factory.setRepository(new File("c:\\temp"));
-        // Create a new file upload handler
         ServletFileUpload upload = new ServletFileUpload(factory);
-        // maximum file size to be uploaded.
-        upload.setSizeMax( maxFileSize );
-
         try{
             // Parse the request to get file items.
             List fileItems = upload.parseRequest(request);
@@ -72,16 +62,16 @@ public class UploadServlet extends HttpServlet {
             List<String> filePath = new ArrayList<String>();
             while (i.hasNext () )
             {
-                FileItem fi = (FileItem)i.next();
-                //fi is a warehouse name
-                if (fi.isFormField () && fi.getString().equals("on"))
+                FileItem fileItem = (FileItem)i.next();
+                //fileItem is a warehouse name
+                if (fileItem.isFormField () && fileItem.getString().equals("on"))
                 {
-                    String str = filePathTemp + fi.getFieldName() + "\\";
+                    String str = filePathTemp + fileItem.getFieldName() + "\\";
                     filePath.add(str);
                     pathCount ++;
                 }
-                //fi is a module name
-                else if(fi.isFormField () && fi.getFieldName().equals("module"))
+                //fileItem is a module name
+                else if(fileItem.isFormField () && fileItem.getFieldName().equals("module"))
                 {
                     if(pathCount == 0)
                     {
@@ -89,28 +79,32 @@ public class UploadServlet extends HttpServlet {
                     }
                     for(int j = 0; j < pathCount; j++)
                     {
-                        filePath.set(j,filePath.get(j)+fi.getString()+"\\");
+                        filePath.set(j,filePath.get(j)+fileItem.getString()+"\\");
                     }
                 }
-                // fi is a file
-                else if(!fi.isFormField ())
+                //fileItem is a file
+                else if(!fileItem.isFormField ())
                 {
                     fileExits = true;
                     // Get the uploaded file parameters
-                    String fieldName = fi.getFieldName();
-                    String fileName = fi.getName();
-                    String contentType = fi.getContentType();
-                    boolean isInMemory = fi.isInMemory();
-                    long sizeInBytes = fi.getSize();
-                    // Write the file
+                    String fileName = fileItem.getName();
+                    boolean isInMemory = fileItem.isInMemory();
+                    long sizeInBytes = fileItem.getSize();
+                    logger.info("write file "+fileName+" size "+sizeInBytes);
                     for(int k = 0; k < pathCount; k++)
                     {
                         file = new File( filePath.get(k) +
                                 fileName.substring( fileName.lastIndexOf("\\") + 1)) ;
-                        fi.write( file ) ;
+                        fileItem.write( file ) ;
                     }
-
-                    out.println("Uploaded Filename:" + fileName + "<br>");
+                    if(isInMemory)
+                    {
+                        out.println("Replaced File:" + fileName + ", "+ sizeInBytes + "<br>");
+                    }
+                    else
+                    {
+                        out.println("Added File:" + fileName + ", "+ sizeInBytes + "<br>");
+                    }
                 }
             }
 
